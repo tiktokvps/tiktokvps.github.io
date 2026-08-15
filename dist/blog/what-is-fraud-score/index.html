@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="description" content="同样是海外 IP，为什么有的能养出百万号，有的一登录就限流？答案藏在欺诈值（Fraud Score）里。这篇文章拆解 IP 评分系统的底层逻辑：谁在打分、按什么维度打分、为什么脏 IP 洗不白、以及 TikTok 又是如何利用这个分数把你的视频“悄悄雪藏”的。"><meta name="keywords" content="Fraud Score, 欺诈值原理, IP评分, IP信誉, TikTok风控, 影子封禁, Shadowban, IP纯净度"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="canonical" href="https://tiktokvps.github.io/blog/what-is-fraud-score/"><meta name="generator" content="Astro v7.2.0"><title>深度剖析 Fraud Score (欺诈值)：TikTok 是如何给你的 IP 打分的？ | TikTok VPS 推荐</title><!-- OG / Social --><meta property="og:title" content="深度剖析 Fraud Score (欺诈值)：TikTok 是如何给你的 IP 打分的？ | TikTok VPS 推荐"><meta property="og:description" content="同样是海外 IP，为什么有的能养出百万号，有的一登录就限流？答案藏在欺诈值（Fraud Score）里。这篇文章拆解 IP 评分系统的底层逻辑：谁在打分、按什么维度打分、为什么脏 IP 洗不白、以及 TikTok 又是如何利用这个分数把你的视频“悄悄雪藏”的。"><meta property="og:type" content="website"><meta property="og:url" content="https://tiktokvps.github.io/blog/what-is-fraud-score/"><meta property="og:image" content="https://tiktokvps.github.io/images/og-default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="TikTok VPS 推荐"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="深度剖析 Fraud Score (欺诈值)：TikTok 是如何给你的 IP 打分的？ | TikTok VPS 推荐"><meta name="twitter:description" content="同样是海外 IP，为什么有的能养出百万号，有的一登录就限流？答案藏在欺诈值（Fraud Score）里。这篇文章拆解 IP 评分系统的底层逻辑：谁在打分、按什么维度打分、为什么脏 IP 洗不白、以及 TikTok 又是如何利用这个分数把你的视频“悄悄雪藏”的。"><meta name="twitter:image" content="https://tiktokvps.github.io/images/og-default.png"><!-- Structured data --><script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"TikTok VPS 推荐","url":"https://tiktokvps.github.io/","logo":"https://tiktokvps.github.io/images/og-default.png"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"TikTok VPS 推荐","url":"https://tiktokvps.github.io/","inLanguage":"zh-CN"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"深度剖析 Fraud Score (欺诈值)：TikTok 是如何给你的 IP 打分的？","description":"同样是海外 IP，为什么有的能养出百万号，有的一登录就限流？答案藏在欺诈值（Fraud Score）里。这篇文章拆解 IP 评分系统的底层逻辑：谁在打分、按什么维度打分、为什么脏 IP 洗不白、以及 TikTok 又是如何利用这个分数把你的视频“悄悄雪藏”的。","image":"https://tiktokvps.github.io/images/og-default.png","datePublished":"2026-08-08T00:00:00.000Z","author":{"@type":"Person","name":"TikTok VPS Expert"},"publisher":{"@type":"Organization","name":"TikTok VPS 推荐","logo":{"@type":"ImageObject","url":"https://tiktokvps.github.io/images/og-default.png"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://tiktokvps.github.io/blog/what-is-fraud-score/"},"inLanguage":"zh-CN"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tiktokvps.github.io/"},{"@type":"ListItem","position":2,"name":"博客教程","item":"https://tiktokvps.github.io/blog/"},{"@type":"ListItem","position":3,"name":"深度剖析 Fraud Score (欺诈值)：TikTok 是如何给你的 IP 打分的？","item":"https://tiktokvps.github.io/blog/what-is-fraud-score/"}]}</script><link rel="stylesheet" href="/_astro/Layout.zaCLfChJ.css"></head><body class="bg-[#f8f9fc] text-[#111] font-sans antialiased min-h-screen flex flex-col"><!-- ======== HEADER ======== --><header class="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-[#e8eaf0]" style="box-shadow:0 1px 12px rgba(0,0,0,0.06)"><div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"><!-- Logo --><a href="/" class="flex items-center gap-2 group" aria-label="首页"><div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm" style="background:linear-gradient(135deg,#FE2C55,#8B5CF6,#25F4EE)">T</div><span class="font-bold text-[17px] tracking-tight text-[#111]">TikTok <span class="gradient-text">VPS</span> 推荐</span></a><!-- Desktop Nav --><nav class="hidden md:flex items-center gap-8" aria-label="主导航"><a href="/" class="nav-link">首页</a><a href="/scenarios" class="nav-link">场景化推荐</a><a href="/best-tiktok-vps" class="nav-link">精选 VPS 推荐</a><a href="/blog" class="nav-link">博客教程</a><a href="/about" class="nav-link">关于本站</a></nav><!-- CTA + Burger --><div class="flex items-center gap-3"><a href="/best-tiktok-vps" class="hidden md:inline-flex btn btn-primary px-4 py-2 text-sm">查看推荐<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg></a><!-- Mobile burger --><button id="burger-btn" class="md:hidden p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors" aria-label="打开菜单"><svg id="burger-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></button></div></div><!-- Mobile menu --><div id="mobile-menu" class="md:hidden border-t border-[#e8eaf0] bg-white"><nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-1"><a href="/" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">首页</a><a href="/scenarios" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">场景化推荐</a><a href="/best-tiktok-vps" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">精选 VPS 推荐</a><a href="/blog" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">博客教程</a><a href="/about" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">关于本站</a><div class="pt-2 border-t border-gray-100 mt-1"><a href="/best-tiktok-vps" class="btn btn-primary w-full px-4 py-2.5 text-sm">查看商家推荐</a></div></nav></div></header><div class="bg-gray-50 border-b border-[#e8eaf0] px-4 py-3 text-xs sm:text-sm text-gray-500"><div class="max-w-6xl mx-auto flex items-center justify-center gap-2 text-center"><svg class="w-4 h-4 text-gray-400 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span><strong>利益相关声明：</strong>本站包含推广链接，通过链接购买我们可能会获得佣金，但这绝对不会增加您的购买成本。</span></div></div><!-- ======== MAIN ======== --><main class="flex-grow w-full"><article class="max-w-3xl mx-auto px-4 py-12"><!-- Back link --><a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#FE2C55] transition-colors mb-8"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path></svg>返回教程列表</a><!-- Article Header --><header class="mb-10"><div class="flex items-center gap-2 text-xs text-gray-400 mb-4"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"></path></svg><time datetime="2026-08-08T00:00:00.000Z">2026年8月7日</time><span>·</span><span>TikTok VPS Expert</span></div><h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-4">深度剖析 Fraud Score (欺诈值)：TikTok 是如何给你的 IP 打分的？</h1><p class="text-lg text-gray-500 leading-relaxed border-l-4 pl-4" style="border-color:#FE2C55">同样是海外 IP，为什么有的能养出百万号，有的一登录就限流？答案藏在欺诈值（Fraud Score）里。这篇文章拆解 IP 评分系统的底层逻辑：谁在打分、按什么维度打分、为什么脏 IP 洗不白、以及 TikTok 又是如何利用这个分数把你的视频“悄悄雪藏”的。</p></header><!-- Article Content --><div class="prose prose-gray prose-lg max-w-none
+                prose-headings:font-bold prose-headings:text-gray-900
+                prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-[#e8eaf0]
+                prose-a:text-[#FE2C55] prose-a:no-underline prose-a:hover:underline
+                prose-blockquote:border-l-4 prose-blockquote:not-italic prose-blockquote:text-gray-600
+                prose-strong:text-gray-900 prose-code:text-[#FE2C55] prose-code:bg-red-50 prose-code:px-1 prose-code:rounded"><p>如果你已经会用工具<a href="/blog/how-to-check-fraud-score">测出一个 IP 的欺诈值</a>，那你一定好奇：<strong>这个 0 到 100 的数字，到底是谁、按什么规则打出来的？</strong> 为什么同样都是美国 IP，有的 3 分、有的 80 分？为什么有的 IP 今天测着好好的、过几天就变脏了？</p>
+<p>搞懂打分逻辑，你才能真正理解“为什么廉价节点必封”“为什么脏 IP 洗不白”，以及“什么样的 IP 才值得花钱买”。这篇就把这套评分系统彻底拆开给你看。</p>
+<h2 id="欺诈值本质是-ip-的信用分">欺诈值，本质是 IP 的“信用分”</h2>
+<p>把每一个公网 IP 想象成一个在互联网上活动的人。它做过什么、跟谁一起做过、有没有前科——这些行为都会被记录下来，最终汇总成一个信誉评分。这个分数越高，代表这个 IP“干过坏事”的嫌疑越大，就是<strong>欺诈值（Fraud Score）</strong>。</p>
+<p>它和个人征信几乎是一个道理：</p>
+<ul>
+<li>征信看你有没有逾期、有没有老赖记录；</li>
+<li>欺诈值看这个 IP 有没有发过垃圾邮件、跑过恶意爬虫、批量注册过账号、参与过攻击。</li>
+</ul>
+<p>区别只在于，你无法“修复”一个脏 IP 的征信——历史是别人留下的，你只是接盘的那个倒霉蛋。</p>
+<h2 id="谁在给-ip-打分">谁在给 IP 打分？</h2>
+<p>分数不是 TikTok 自己拍脑袋定的，而是一整个<strong>反欺诈情报行业</strong>在做的事。全球有一批专门的风险数据库，长期收集、交叉比对全网 IP 的行为，对外提供评分服务，比如：</p>
+<ul>
+<li><strong>Scamalytics</strong>：最常被个人用户拿来免费查询；</li>
+<li><strong>IPQualityScore (IPQS)</strong>：风控行业广泛采购的商业数据源；</li>
+<li><strong>MaxMind minFraud</strong>：老牌反欺诈，很多支付、电商风控在用；</li>
+<li><strong>Spur、IP2Proxy</strong> 等代理识别专精厂商。</li>
+</ul>
+<p>TikTok 这类平台，会<strong>实时接入</strong>其中一家或多家的数据库。你连上来的一瞬间，系统就拿你的出口 IP 去查了一遍档案。</p>
+<blockquote>
+<p>这也解释了一个常见困惑：<strong>为什么同一个 IP，Scamalytics 给 5 分、IPQS 却给 40 分？</strong> 因为它们数据来源和算法不同。所以判断一个 IP 干不干净，不能只信一家——<strong>多家都低，才是真的干净。</strong></p>
+</blockquote>
+<h2 id="打分的-5-个核心维度">打分的 5 个核心维度</h2>
+<p>这些数据库不是只看一个指标，而是综合打分。理解这几个维度，你就明白该避开什么样的 IP 了。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">维度</th>
+<th style="text-align:left">说明</th>
+<th style="text-align:left">加分（变脏）信号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>IP 类型</strong></td>
+<td style="text-align:left">住宅宽带 / 机房托管 / 移动网络</td>
+<td style="text-align:left">机房（Hosting/Datacenter）天然被视为高风险</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>历史滥用记录</strong></td>
+<td style="text-align:left">该 IP 过去的“案底”</td>
+<td style="text-align:left">发垃圾邮件、爬虫、DDoS、批量注册、羊毛党</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>代理/VPN 特征</strong></td>
+<td style="text-align:left">是否表现出中转特征</td>
+<td style="text-align:left">被识别为 Proxy / VPN / TOR 出口节点</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>地理与 ASN 归属</strong></td>
+<td style="text-align:left">IP 属于哪个运营商、哪个网段</td>
+<td style="text-align:left">归属知名“机房 ASN”、地理位置漂移异常</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>关联行为密度</strong></td>
+<td style="text-align:left">同一 IP 背后有多少账号/请求</td>
+<td style="text-align:left">短时间海量账号、请求集中（万人共用）</td>
+</tr>
+</tbody>
+</table>
+<p>其中，<strong>IP 类型</strong>和<strong>历史滥用记录</strong>这两项权重最高。这也解释了两件事：</p>
+<ol>
+<li>为什么真实住宅 IP 天生低分——它就是个普通家庭宽带，没有机房属性，也很少有人拿家里的宽带去干坏事；</li>
+<li>为什么共享机场节点分数会突然飙升——它是机房 IP（先天扣分），又被成百上千人共用（关联密度爆表），只要其中有人违规，整个 IP 就一起变脏。</li>
+</ol>
+<p>关于机房 IP 和住宅 IP 的本质差异，我单独写过一篇：<a href="/blog/isp-vs-datacenter-ip">一文搞懂机房 IP、住宅 IP 与双 ISP 节点</a>。</p>
+<h2 id="为什么脏-ip洗不白">为什么脏 IP“洗不白”？</h2>
+<p>这是很多人不愿接受、却必须认清的事实：<strong>你没有能力降低一个 IP 的欺诈值。</strong></p>
+<p>原因很简单——分数是<strong>第三方数据库根据历史行为</strong>打的，而历史行为不是你产生的，是这个 IP 之前的使用者（或同 IP 的其他人）产生的。你既改不了它的过去，也管不住同 IP 上其他人的现在。你唯一能做的，就是<strong>换一个出身干净的 IP</strong>。</p>
+<p>那些教你“养一养脏 IP 就能洗白”的说法，基本都是徒劳：对于共享节点，你养的这点“好行为”，瞬间就被同 IP 上其他人的作死行为冲抵掉了。<strong>与其研究怎么洗白，不如从源头就用一个干净且独享的 IP。</strong></p>
+<h2 id="tiktok-拿到这个分数后会做什么">TikTok 拿到这个分数后，会做什么？</h2>
+<p>这才是最关键的一步。很多人以为“分数高 = 直接封号”，其实 TikTok 的手段要“阴”得多。</p>
+<p>当它检测到你的连接 IP 欺诈值偏高时，最常见的处理不是弹窗封号，而是<strong>影子封禁（Shadowban）</strong>：</p>
+<blockquote>
+<p>你自己刷、自己看，一切正常——视频能发出去、主页有播放数——但系统<strong>绝不会把你的内容推进任何一个流量池</strong>。于是就出现了那个经典的绝望场面：<strong>播放量永远停在 0 或个位数。</strong></p>
+</blockquote>
+<p>比 Shadowban 更靠前的信号，是各种“操作阻力”：登录、点赞、关注时频繁提示 <code>Too many attempts</code>。这其实是风控在委婉地告诉你——<a href="/blog/too-many-attempts-fix">这个 IP 已经被高危标记了</a>。</p>
+<div class="my-10 relative overflow-hidden rounded-2xl not-prose" style="background: linear-gradient(135deg, #fff1f4 0%, #fdf2ff 50%, #f0f9ff 100%); border: 1px solid rgba(254,44,85,0.15);"><!-- 左上角品牌渐变光晕 --><div class="absolute -left-8 -top-8 w-40 h-40 rounded-full opacity-20 pointer-events-none" style="background: radial-gradient(circle, #FE2C55 0%, transparent 70%);"></div><!-- 右下角青色光晕 --><div class="absolute -right-8 -bottom-8 w-32 h-32 rounded-full opacity-15 pointer-events-none" style="background: radial-gradient(circle, #25F4EE 0%, transparent 70%);"></div><div class="relative z-10 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6"><div class="flex-1"><!-- 小标签 --><div class="flex items-center gap-2 mb-3"><span class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase" style="color: #FE2C55;"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>编辑推荐</span></div><h4 class="text-lg sm:text-xl font-bold text-gray-900 mt-0 mb-2 leading-snug">与其研究怎么“洗白”脏 IP，不如从源头就用干净的</h4><p class="text-gray-600 m-0 text-sm sm:text-base leading-relaxed">脏 IP 的历史无法修改，你能做的只有换。看看我们逐台实测、欺诈值稳定压在个位数的双 ISP 住宅 VPS 名单。</p></div><div class="shrink-0 w-full sm:w-auto"><a href="/best-tiktok-vps" target="_blank" rel="nofollow noopener noreferrer" class="btn btn-primary w-full sm:w-auto justify-center px-6 py-3 text-sm">查看防封 VPS 推荐名单<svg class="w-4 h-4 ml-1.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg></a></div></div></div>
+<h2 id="分数区间到底怎么算安全">分数区间，到底怎么算安全？</h2>
+<p>结合前面的维度，一个 IP 的欺诈值大致可以这样对应到风险：</p>
+<ul>
+<li><strong>0 – 15（低危）</strong>：纯净度极高，养号 / 小店 / 直播的理想区间。基本只有真实住宅或高质量双 ISP 住宅 IP 能稳定做到。</li>
+<li><strong>16 – 35（中危）</strong>：能用但有风险，新号发视频有一定概率被限流。</li>
+<li><strong>36 以上（高危）</strong>：随时可能触发风控，果断放弃。</li>
+</ul>
+<p>具体每一档怎么落地判断、用哪些工具复测，看这篇实操：<a href="/blog/how-to-check-fraud-score">如何检测 IP 欺诈值</a>。</p>
+<h2 id="结论你买的不是服务器是一段干净的历史">结论：你买的不是“服务器”，是一段干净的历史</h2>
+<p>理解了打分逻辑，你就会明白一件事——<strong>做 TikTok，真正花钱买的从来不是 CPU 和内存，而是一个“出身清白、且只有你一个人用”的 IP。</strong></p>
+<ul>
+<li>廉价机场：机房属性 + 万人共用 = 欺诈值先天高、且随时可能被别人搞脏；</li>
+<li>独享住宅 IP：真实家宽属性 + 独占使用 = 天生低分、且分数长期稳定可控。</li>
+</ul>
+<p>这就是为什么我们始终建议 TikTok 运营者直接上<strong>独享的双 ISP 住宅 IP</strong>。想看具体怎么挑、买哪家，直接看 👉 <a href="/best-tiktok-vps">最适合 TikTok 的精选 VPS 推荐名单</a>。</p>
+<div class="mt-12 bg-gray-50 border border-[#e8eaf0] rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5"><div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#FE2C55] to-[#8B5CF6] p-0.5 shrink-0"><div class="w-full h-full rounded-full bg-white flex items-center justify-center text-xl font-bold text-gray-800">V</div></div><div><h3 class="text-lg font-bold text-gray-900 mb-1">跨境老兵 Vic</h3><p class="text-sm text-gray-600 leading-relaxed">5年跨境电商实操经验，曾因网络隔离问题踩坑无数。现专注于 TikTok 环境搭建与网络底层逻辑，用实测数据帮你避开劣质 IP。</p><div class="mt-3"><a href="/about" class="text-sm text-[#FE2C55] font-medium hover:underline">了解更多关于我的故事 &rarr;</a></div></div></div></div><!-- Article Footer CTA --><div class="mt-16 rounded-2xl p-8 text-center" style="background:linear-gradient(135deg,rgba(254,44,85,0.06),rgba(37,244,238,0.06)); border:1px solid rgba(254,44,85,0.15)"><h3 class="text-xl font-bold text-gray-900 mb-3">准备好打造防封的 TikTok 环境了吗？</h3><p class="text-gray-500 text-sm mb-6 max-w-sm mx-auto">选择我们测试过的家宽属性 VPS，从源头解决 0 播放和封号问题。</p><div class="flex flex-col sm:flex-row justify-center gap-3"><a href="/best-tiktok-vps" class="btn btn-primary px-6 py-2.5 text-sm">查看推荐商家<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg></a><a href="/blog" class="btn btn-outline px-6 py-2.5 text-sm">更多干货教程</a></div></div></article></main><!-- ======== FOOTER ======== --><footer class="bg-white border-t border-[#e8eaf0] mt-16"><div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10"><!-- Brand --><div><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm" style="background:linear-gradient(135deg,#FE2C55,#8B5CF6,#25F4EE)">T</div><span class="font-bold text-[17px] tracking-tight">TikTok <span class="gradient-text">VPS</span> 推荐</span></div><p class="text-sm text-gray-500 leading-relaxed">持续测试市面上的 VPS 服务，只推荐真正具有原生 IP 和家宽属性的服务器，帮助跨境电商卖家防封。</p></div><!-- Quick Links --><div><h3 class="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">快速导航</h3><ul class="space-y-2.5"><li><a href="/scenarios" class="text-sm text-gray-500 hover:text-[#FE2C55] transition-colors">场景化推荐</a></li><li><a href="/best-tiktok-vps" class="text-sm text-gray-500 hover:text-[#FE2C55] transition-colors">精选 VPS 推荐</a></li><li><a href="/blog" class="text-sm text-gray-500 hover:text-[#FE2C55] transition-colors">博客教程</a></li><li><a href="/about" class="text-sm text-gray-500 hover:text-[#FE2C55] transition-colors">关于本站</a></li></ul></div><!-- Info --><div><h3 class="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">关于本站</h3><p class="text-sm text-gray-500 leading-relaxed">本站为独立评测站，所有推荐均经过实测。部分链接包含推广参数，通过链接购买可能使我们获得佣金，不影响您的购买价格。</p></div></div><div class="pt-8 border-t border-[#e8eaf0] flex flex-col sm:flex-row items-center justify-between gap-3"><p class="text-xs text-gray-400">© 2026 TikTok VPS 推荐. All rights reserved.</p><p class="text-xs text-gray-400">免责声明：本站包含推广链接，购买不增加您的成本。</p></div></div></footer><!-- Mobile menu script --><script type="module">var e=document.getElementById(`burger-btn`),t=document.getElementById(`mobile-menu`);e?.addEventListener(`click`,()=>{t?.classList.toggle(`open`)});</script></body></html>

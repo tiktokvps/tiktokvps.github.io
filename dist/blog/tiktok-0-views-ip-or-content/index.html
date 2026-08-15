@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="description" content="TikTok 视频 0 播放，先别急着怪算法。到底是网络环境（IP）被限流，还是视频内容触发了查重/违规？这篇给你一套“控制变量”的排查公式，三步精准定位真正的病根，并附上最容易误判的几种边界情况，别再瞎折腾。"><meta name="keywords" content="TikTok 0播放, 0播放原因, TikTok限流排查, 视频查重, TikTok IP限流, 播放量为0怎么办"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="canonical" href="https://tiktokvps.github.io/blog/tiktok-0-views-ip-or-content/"><meta name="generator" content="Astro v7.2.0"><title>视频 0 播放：到底是 IP 节点不行，还是视频内容被查重了？(排查公式) | TikTok VPS 推荐</title><!-- OG / Social --><meta property="og:title" content="视频 0 播放：到底是 IP 节点不行，还是视频内容被查重了？(排查公式) | TikTok VPS 推荐"><meta property="og:description" content="TikTok 视频 0 播放，先别急着怪算法。到底是网络环境（IP）被限流，还是视频内容触发了查重/违规？这篇给你一套“控制变量”的排查公式，三步精准定位真正的病根，并附上最容易误判的几种边界情况，别再瞎折腾。"><meta property="og:type" content="website"><meta property="og:url" content="https://tiktokvps.github.io/blog/tiktok-0-views-ip-or-content/"><meta property="og:image" content="https://tiktokvps.github.io/images/og-default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="TikTok VPS 推荐"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="视频 0 播放：到底是 IP 节点不行，还是视频内容被查重了？(排查公式) | TikTok VPS 推荐"><meta name="twitter:description" content="TikTok 视频 0 播放，先别急着怪算法。到底是网络环境（IP）被限流，还是视频内容触发了查重/违规？这篇给你一套“控制变量”的排查公式，三步精准定位真正的病根，并附上最容易误判的几种边界情况，别再瞎折腾。"><meta name="twitter:image" content="https://tiktokvps.github.io/images/og-default.png"><!-- Structured data --><script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"TikTok VPS 推荐","url":"https://tiktokvps.github.io/","logo":"https://tiktokvps.github.io/images/og-default.png"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"TikTok VPS 推荐","url":"https://tiktokvps.github.io/","inLanguage":"zh-CN"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"视频 0 播放：到底是 IP 节点不行，还是视频内容被查重了？(排查公式)","description":"TikTok 视频 0 播放，先别急着怪算法。到底是网络环境（IP）被限流，还是视频内容触发了查重/违规？这篇给你一套“控制变量”的排查公式，三步精准定位真正的病根，并附上最容易误判的几种边界情况，别再瞎折腾。","image":"https://tiktokvps.github.io/images/og-default.png","datePublished":"2026-08-11T00:00:00.000Z","author":{"@type":"Person","name":"TikTok VPS Expert"},"publisher":{"@type":"Organization","name":"TikTok VPS 推荐","logo":{"@type":"ImageObject","url":"https://tiktokvps.github.io/images/og-default.png"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://tiktokvps.github.io/blog/tiktok-0-views-ip-or-content/"},"inLanguage":"zh-CN"}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://tiktokvps.github.io/"},{"@type":"ListItem","position":2,"name":"博客教程","item":"https://tiktokvps.github.io/blog/"},{"@type":"ListItem","position":3,"name":"视频 0 播放：到底是 IP 节点不行，还是视频内容被查重了？(排查公式)","item":"https://tiktokvps.github.io/blog/tiktok-0-views-ip-or-content/"}]}</script><link rel="stylesheet" href="/_astro/Layout.zaCLfChJ.css"></head><body class="bg-[#f8f9fc] text-[#111] font-sans antialiased min-h-screen flex flex-col"><!-- ======== HEADER ======== --><header class="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-[#e8eaf0]" style="box-shadow:0 1px 12px rgba(0,0,0,0.06)"><div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"><!-- Logo --><a href="/" class="flex items-center gap-2 group" aria-label="首页"><div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm" style="background:linear-gradient(135deg,#FE2C55,#8B5CF6,#25F4EE)">T</div><span class="font-bold text-[17px] tracking-tight text-[#111]">TikTok <span class="gradient-text">VPS</span> 推荐</span></a><!-- Desktop Nav --><nav class="hidden md:flex items-center gap-8" aria-label="主导航"><a href="/" class="nav-link">首页</a><a href="/scenarios" class="nav-link">场景化推荐</a><a href="/best-tiktok-vps" class="nav-link">精选 VPS 推荐</a><a href="/blog" class="nav-link">博客教程</a><a href="/about" class="nav-link">关于本站</a></nav><!-- CTA + Burger --><div class="flex items-center gap-3"><a href="/best-tiktok-vps" class="hidden md:inline-flex btn btn-primary px-4 py-2 text-sm">查看推荐<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg></a><!-- Mobile burger --><button id="burger-btn" class="md:hidden p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors" aria-label="打开菜单"><svg id="burger-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg></button></div></div><!-- Mobile menu --><div id="mobile-menu" class="md:hidden border-t border-[#e8eaf0] bg-white"><nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-1"><a href="/" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">首页</a><a href="/scenarios" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">场景化推荐</a><a href="/best-tiktok-vps" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">精选 VPS 推荐</a><a href="/blog" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">博客教程</a><a href="/about" class="px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900">关于本站</a><div class="pt-2 border-t border-gray-100 mt-1"><a href="/best-tiktok-vps" class="btn btn-primary w-full px-4 py-2.5 text-sm">查看商家推荐</a></div></nav></div></header><div class="bg-gray-50 border-b border-[#e8eaf0] px-4 py-3 text-xs sm:text-sm text-gray-500"><div class="max-w-6xl mx-auto flex items-center justify-center gap-2 text-center"><svg class="w-4 h-4 text-gray-400 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span><strong>利益相关声明：</strong>本站包含推广链接，通过链接购买我们可能会获得佣金，但这绝对不会增加您的购买成本。</span></div></div><!-- ======== MAIN ======== --><main class="flex-grow w-full"><article class="max-w-3xl mx-auto px-4 py-12"><!-- Back link --><a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#FE2C55] transition-colors mb-8"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"></path></svg>返回教程列表</a><!-- Article Header --><header class="mb-10"><div class="flex items-center gap-2 text-xs text-gray-400 mb-4"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"></path></svg><time datetime="2026-08-11T00:00:00.000Z">2026年8月10日</time><span>·</span><span>TikTok VPS Expert</span></div><h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-4">视频 0 播放：到底是 IP 节点不行，还是视频内容被查重了？(排查公式)</h1><p class="text-lg text-gray-500 leading-relaxed border-l-4 pl-4" style="border-color:#FE2C55">TikTok 视频 0 播放，先别急着怪算法。到底是网络环境（IP）被限流，还是视频内容触发了查重/违规？这篇给你一套“控制变量”的排查公式，三步精准定位真正的病根，并附上最容易误判的几种边界情况，别再瞎折腾。</p></header><!-- Article Content --><div class="prose prose-gray prose-lg max-w-none
+                prose-headings:font-bold prose-headings:text-gray-900
+                prose-h2:mt-10 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-[#e8eaf0]
+                prose-a:text-[#FE2C55] prose-a:no-underline prose-a:hover:underline
+                prose-blockquote:border-l-4 prose-blockquote:not-italic prose-blockquote:text-gray-600
+                prose-strong:text-gray-900 prose-code:text-[#FE2C55] prose-code:bg-red-50 prose-code:px-1 prose-code:rounded"><p>视频发出去 0 播放，是所有 TikTok 新手最崩溃的时刻。网上的说法五花八门：有人说是 IP 脏，有人说是内容搬运被查重，有人说是新号权重低……到底信谁？</p>
+<p>其实不用猜。0 播放的原因无非两大类：<strong>环境问题（IP/设备）</strong> 或 <strong>内容问题（查重/违规）</strong>。用一套“控制变量法”，三步就能把病根锁死，而不是靠玄学和运气反复试。</p>
+<h2 id="为什么会0-播放先理解流量池">为什么会“0 播放”？先理解流量池</h2>
+<p>每条视频发出后，系统会先丢进一个几百人的<strong>初始流量池</strong>试水，根据完播、点赞、评论决定要不要推给更多人。所谓 0 播放，就是<strong>连这第一个几百人的池子都没进去</strong>。</p>
+<p>能卡在“入池”这一步的，只有两种门卫：</p>
+<ul>
+<li><strong>环境门卫</strong>：一看你的出口 IP 欺诈值过高、或判定你在用代理跨境，直接不给你入池资格——<strong>跟你拍了什么无关。</strong></li>
+<li><strong>内容门卫</strong>：视频通过了环境检查，但被判定为搬运、查重、含违规元素，同样不给推。</li>
+</ul>
+<p>看懂了吗？<strong>这是两道独立的门。</strong> 所以排查的核心，就是分别去敲这两道门，看到底卡在哪一道。</p>
+<h2 id="先分清两类-0-播放长得不一样">先分清：两类 0 播放，长得不一样</h2>
+<p>在动手排查前，先看症状，它们往往有区别：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">特征</th>
+<th style="text-align:left">更偏向「环境问题」</th>
+<th style="text-align:left">更偏向「内容问题」</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">影响范围</td>
+<td style="text-align:left"><strong>所有</strong>视频都 0 播放，包括随手拍的原创</td>
+<td style="text-align:left">只有<strong>某些</strong>视频 0 播放，其他正常</td>
+</tr>
+<tr>
+<td style="text-align:left">伴随现象</td>
+<td style="text-align:left">频繁 <code>Too many attempts</code>、登录异常、黑屏</td>
+<td style="text-align:left">能正常刷别人的、只是自己发的没量</td>
+</tr>
+<tr>
+<td style="text-align:left">账号状态</td>
+<td style="text-align:left">新号第一条就 0，或突然集体扑街</td>
+<td style="text-align:left">老号一直有量，某条突然为 0</td>
+</tr>
+</tbody>
+</table>
+<p>如果是“所有视频、所有操作都不对劲”，<strong>80% 是环境问题，优先查 IP</strong>。如果是“别的都好好的，就某条视频没量”，那大概率是<strong>内容问题</strong>。</p>
+<h2 id="排查公式控制变量三步法">排查公式：控制变量三步法</h2>
+<p>科学排查的核心只有一句话：<strong>一次只改一个变量。</strong> 别一上来又换 IP 又换内容，改到最后你自己都不知道是哪一步起了作用。</p>
+<h3 id="第一步验证环境是否干净排除-ip-嫌疑">第一步：验证「环境」是否干净（排除 IP 嫌疑）</h3>
+<p>先把内容变量固定住，只测环境。做两件事：</p>
+<ol>
+<li><strong>测欺诈值</strong>：连上你的节点，<a href="/blog/how-to-check-fraud-score">按这篇实操测一遍 Fraud Score</a>。分数 &gt; 35 基本可以确诊——<a href="/blog/what-is-fraud-score">你的 IP 被风控了</a>，后面别测了，先换 IP。</li>
+<li><strong>测泄露</strong>：确认没有 <a href="/blog/dns-webrtc-leaks">WebRTC / DNS 泄露</a>，否则海外身份当场穿帮。</li>
+</ol>
+<blockquote>
+<p><strong>关键动作</strong>：发一条<strong>绝对安全的原创内容</strong>做探针——比如拿手机拍一段窗外的天空、一杯水，不加任何搬运、不踩任何违规。如果连这种“无害到极致”的原创都 0 播放，那基本可以断定：<strong>问题不在内容，在环境。</strong></p>
+</blockquote>
+<h3 id="第二步验证内容是否踩线排除违规嫌疑">第二步：验证「内容」是否踩线（排除违规嫌疑）</h3>
+<p>如果第一步确认环境干净，那就把矛头转向内容。常见的内容雷区：</p>
+<ul>
+<li><strong>搬运 / 查重</strong>：直接下载别人的视频二次上传，会被 MD5 和内容指纹识别为重复，直接不给量。</li>
+<li><strong>违规元素</strong>：视频里有其他平台水印（抖音、快手 logo）、敏感词、违禁画面。</li>
+<li><strong>音乐 / 版权</strong>：用了地区受限或侵权的背景音乐。</li>
+</ul>
+<p>排查方法同样是控制变量：<strong>用同一个（已确认干净的）环境，发一条纯原创 vs 一条搬运内容</strong>，对比播放量。如果原创有量、搬运没量，问题就锁定在内容。</p>
+<h3 id="第三步交叉验证锁死结论">第三步：交叉验证，锁死结论</h3>
+<p>把前两步的结果组合起来看，答案一目了然：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">纯原创探针</th>
+<th style="text-align:left">搬运内容</th>
+<th style="text-align:left">结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">❌ 0 播放</td>
+<td style="text-align:left">❌ 0 播放</td>
+<td style="text-align:left"><strong>环境问题</strong>（IP/设备），先换干净 IP</td>
+</tr>
+<tr>
+<td style="text-align:left">✅ 有量</td>
+<td style="text-align:left">❌ 0 播放</td>
+<td style="text-align:left"><strong>内容问题</strong>，别搬运，做原创</td>
+</tr>
+<tr>
+<td style="text-align:left">✅ 有量</td>
+<td style="text-align:left">✅ 有量</td>
+<td style="text-align:left">恭喜，环境和内容都没问题，继续放大</td>
+</tr>
+</tbody>
+</table>
+<div class="my-10 relative overflow-hidden rounded-2xl not-prose" style="background: linear-gradient(135deg, #fff1f4 0%, #fdf2ff 50%, #f0f9ff 100%); border: 1px solid rgba(254,44,85,0.15);"><!-- 左上角品牌渐变光晕 --><div class="absolute -left-8 -top-8 w-40 h-40 rounded-full opacity-20 pointer-events-none" style="background: radial-gradient(circle, #FE2C55 0%, transparent 70%);"></div><!-- 右下角青色光晕 --><div class="absolute -right-8 -bottom-8 w-32 h-32 rounded-full opacity-15 pointer-events-none" style="background: radial-gradient(circle, #25F4EE 0%, transparent 70%);"></div><div class="relative z-10 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6"><div class="flex-1"><!-- 小标签 --><div class="flex items-center gap-2 mb-3"><span class="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase" style="color: #FE2C55;"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>编辑推荐</span></div><h4 class="text-lg sm:text-xl font-bold text-gray-900 mt-0 mb-2 leading-snug">排查下来是 IP 的锅？</h4><p class="text-gray-600 m-0 text-sm sm:text-base leading-relaxed">与其反复测节点、反复扑街，不如一步到位换成干净的独享住宅 IP。我们逐台实测过，欺诈值稳定压在个位数。</p></div><div class="shrink-0 w-full sm:w-auto"><a href="/best-tiktok-vps" target="_blank" rel="nofollow noopener noreferrer" class="btn btn-primary w-full sm:w-auto justify-center px-6 py-3 text-sm">查看防封 VPS 推荐名单<svg class="w-4 h-4 ml-1.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg></a></div></div></div>
+<h2 id="几种最容易误判的边界情况">几种最容易误判的边界情况</h2>
+<p>排查公式能覆盖 90% 的情况，但下面几种“伪 0 播放”经常让人白忙活，先排除掉：</p>
+<ul>
+<li><strong>新号前几条本就量小</strong>：全新账号没有权重，头几条视频只有几十播放是正常的，别一看不是几千就当成被限流。给它几天时间。</li>
+<li><strong>发布时间 + 冷启动</strong>：刚发出去的头一两个小时播放个位数很常见，系统还在小池子里试水，别发出去半小时就下结论。</li>
+<li><strong>完播率太低导致不推</strong>：视频前 3 秒留不住人，系统试水后主动停推，这是内容节奏问题，不是限流也不是 IP。</li>
+<li><strong>同一台手机/设备登录过问题账号</strong>：设备指纹也可能被关联。如果换了干净 IP 还是 0 播放，排查一下设备本身。</li>
+</ul>
+<h2 id="一个提醒别把所有锅都甩给-ip">一个提醒：别把所有锅都甩给 IP</h2>
+<p>我见过太多人，一 0 播放就无限换节点，换到怀疑人生，其实是内容一直在搬运。也见过反过来的——内容明明很好，却死在一个脏 IP 上。</p>
+<p><strong>先花 10 分钟做完这套排查，再决定要不要花钱换 IP，比盲目折腾高效一百倍。</strong></p>
+<p>而且说句大实话：<strong>IP 干净只是拿到了入场券，能不能做起来，最终还是看你的账号定位和内容。</strong> 环境是 1，内容是后面的 0——先把这个 1 立住，然后把精力放到真正决定成败的地方去。</p>
+<h2 id="小结">小结</h2>
+<ul>
+<li>0 播放的本质是“没进初始流量池”，卡点只有两道门：环境门、内容门。</li>
+<li>先分类：所有视频都不行 → 查环境；只有某条不行 → 查内容。</li>
+<li>用“纯原创探针”做控制变量，一次只改一个变量。</li>
+<li>先排除新号冷启动、完播率低这些“伪限流”。</li>
+<li>确诊是 IP 问题，就别犹豫，直接换干净的独享住宅 IP 👉 <a href="/best-tiktok-vps">精选 VPS 推荐名单</a>。</li>
+</ul>
+<div class="mt-12 bg-gray-50 border border-[#e8eaf0] rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5"><div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#FE2C55] to-[#8B5CF6] p-0.5 shrink-0"><div class="w-full h-full rounded-full bg-white flex items-center justify-center text-xl font-bold text-gray-800">V</div></div><div><h3 class="text-lg font-bold text-gray-900 mb-1">跨境老兵 Vic</h3><p class="text-sm text-gray-600 leading-relaxed">5年跨境电商实操经验，曾因网络隔离问题踩坑无数。现专注于 TikTok 环境搭建与网络底层逻辑，用实测数据帮你避开劣质 IP。</p><div class="mt-3"><a href="/about" class="text-sm text-[#FE2C55] font-medium hover:underline">了解更多关于我的故事 &rarr;</a></div></div></div></div><!-- Article Footer CTA --><div class="mt-16 rounded-2xl p-8 text-center" style="background:linear-gradient(135deg,rgba(254,44,85,0.06),rgba(37,244,238,0.06)); border:1px solid rgba(254,44,85,0.15)"><h3 class="text-xl font-bold text-gray-900 mb-3">准备好打造防封的 TikTok 环境了吗？</h3><p class="text-gray-500 text-sm mb-6 max-w-sm mx-auto">选择我们测试过的家宽属性 VPS，从源头解决 0 播放和封号问题。</p><div class="flex flex-col sm:flex-row justify-center gap-3"><a href="/best-tiktok-vps" class="btn btn-primary px-6 py-2.5 text-sm">查看推荐商家<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg></a><a href="/blog" class="btn btn-outline px-6 py-2.5 text-sm">更多干货教程</a></div></div></article></main><!-- ======== FOOTER ======== --><footer class="bg-white border-t border-[#e8eaf0] mt-16"><div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10"><!-- Brand --><div><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm" style="background:linear-gradient(135deg,#FE2C55,#8B5CF6,#25F4EE)">T</div><span class="font-bold text-[17px] tracking-tight">TikTok <span class="gradient-text">VPS</span> 推荐</span></div><p class="text-sm text-gray-500 leading-relaxed">持续测试市面上的 VPS 服务，只推荐真正具有原生 IP 和家宽属性的服务器，帮助跨境电商卖家防封。</p></div><!-- Quick Links --><div><h3 class="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">快速导航</h3><ul class="space-y-2.5"><li><a href="/scenarios" class="text-sm text-gray-500 hover:text-[#FE2C55] transition-colors">场景化推荐</a></li><li><a href="/best-tiktok-vps" class="text-sm text-gray-500 hover:text-[#FE2C55] transition-colors">精选 VPS 推荐</a></li><li><a href="/blog" class="text-sm text-gray-500 hover:text-[#FE2C55] transition-colors">博客教程</a></li><li><a href="/about" class="text-sm text-gray-500 hover:text-[#FE2C55] transition-colors">关于本站</a></li></ul></div><!-- Info --><div><h3 class="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">关于本站</h3><p class="text-sm text-gray-500 leading-relaxed">本站为独立评测站，所有推荐均经过实测。部分链接包含推广参数，通过链接购买可能使我们获得佣金，不影响您的购买价格。</p></div></div><div class="pt-8 border-t border-[#e8eaf0] flex flex-col sm:flex-row items-center justify-between gap-3"><p class="text-xs text-gray-400">© 2026 TikTok VPS 推荐. All rights reserved.</p><p class="text-xs text-gray-400">免责声明：本站包含推广链接，购买不增加您的成本。</p></div></div></footer><!-- Mobile menu script --><script type="module">var e=document.getElementById(`burger-btn`),t=document.getElementById(`mobile-menu`);e?.addEventListener(`click`,()=>{t?.classList.toggle(`open`)});</script></body></html>

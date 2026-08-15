@@ -1,0 +1,7 @@
+# Ignore everything by default
+/*
+
+# Whitelist only what should be committed
+!.gitignore
+!README.md
+!dist/
